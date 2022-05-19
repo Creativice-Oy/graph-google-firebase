@@ -60,7 +60,7 @@ export class Client {
   private credentials: CredentialBody;
   private readonly onRetry?: (err: any) => void;
 
-  private async authenticateClient(): Promise<GoogleAuth<JSONClient>> {
+  private authenticateClient(): GoogleAuth<JSONClient> {
     const auth = new google.auth.GoogleAuth({
       credentials: this.credentials,
       scopes: ['https://www.googleapis.com/auth/cloud-platform'],
