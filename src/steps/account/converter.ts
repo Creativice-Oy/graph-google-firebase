@@ -5,21 +5,28 @@ import {
 
 import { Entities } from '../constants';
 
-export function createAccountEntity(): Entity {
+export function getAccountKey(id: string): string {
+  return `google_firebase_account:${id}`;
+}
+
+export function getAccountName(email: string): string {
+  return email.split('@')[0];
+}
+
+export function createAccountEntity(account: {
+  id: string;
+  email: string;
+}): Entity {
   return createIntegrationEntity({
     entityData: {
-      source: {
-        id: 'acme-unique-account-id',
-        name: 'Example Co. Acme Account',
-      },
+      source: account,
       assign: {
-        _key: 'acme-unique-account-id',
+        _key: getAccountKey(account.id),
         _type: Entities.ACCOUNT._type,
         _class: Entities.ACCOUNT._class,
-        mfaEnabled: true,
-        // This is a custom property that is not a part of the data model class
-        // hierarchy. See: https://github.com/JupiterOne/data-model/blob/master/src/schemas/Account.json
-        manager: 'Manager Name',
+        id: account.id.toString(),
+        email: account.email,
+        name: getAccountName(account.email),
       },
     },
   });
