@@ -78,7 +78,7 @@ export class Client {
   }
 
   public async verifyAuthentication(): Promise<void> {
-    const auth = await this.authenticateClient();
+    const auth = this.authenticateClient();
     const authClient = await auth.getClient();
     google.options({ auth: authClient });
 
@@ -97,7 +97,7 @@ export class Client {
   public async iterateProjects(
     callback: (data: firebase_v1beta1.Schema$FirebaseProject) => Promise<void>,
   ): Promise<void> {
-    const auth = await this.authenticateClient();
+    const auth = this.authenticateClient();
     const authClient = await auth.getClient();
     google.options({ auth: authClient });
     const firebase = google.firebase('v1beta1');
@@ -121,7 +121,7 @@ export class Client {
     projectId: string,
     callback: (data: identitytoolkit_v3.Schema$UserInfo) => Promise<void>,
   ): Promise<void> {
-    const auth = await this.authenticateClient();
+    const auth = this.authenticateClient();
     const authClient = await auth.getClient();
     google.options({ auth: authClient });
     const identitytoolkit = google.identitytoolkit('v3');
