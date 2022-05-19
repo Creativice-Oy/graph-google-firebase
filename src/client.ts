@@ -4,7 +4,6 @@ import {
   GoogleAuth,
   JSONClient,
 } from 'googleapis-common/node_modules/google-auth-library/build/src/auth/googleauth';
-// import { Compute } from 'googleapis-common/node_modules/google-auth-library/build/src/auth/computeclient';
 import { GaxiosResponse } from 'gaxios';
 import {
   IntegrationProviderAuthorizationError,
@@ -87,7 +86,7 @@ export class Client {
     } catch (err) {
       throw new IntegrationProviderAuthorizationError({
         cause: err,
-        endpoint: 'https://localhost/api/v1/some/endpoint?limit=1',
+        endpoint: 'https://www.googleapis.com/oauth2/v4/token',
         status: err.status,
         statusText: err.statusText,
       });
