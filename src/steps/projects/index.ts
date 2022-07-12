@@ -4,7 +4,7 @@ import {
   IntegrationStepExecutionContext,
 } from '@jupiterone/integration-sdk-core';
 
-import { Client } from '../../client';
+// import { Client } from '../../client';
 import { IntegrationConfig } from '../../config';
 import {
   ACCOUNT_ENTITY_KEY,
@@ -12,6 +12,7 @@ import {
   Entities,
   Relationships,
 } from '../constants';
+import { FirebaseClient } from './client';
 import {
   createProjectEntity,
   createAccountProjectRelationship,
@@ -21,11 +22,11 @@ export async function fetchProjects({
   instance,
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
-  const apiClient = new Client(instance.config);
+  const client = new FirebaseClient(instance.config);
 
   const accountEntity = (await jobState.getData(ACCOUNT_ENTITY_KEY)) as Entity;
 
-  await apiClient.iterateProjects(async (project) => {
+  await client.iterateProjects(async (project) => {
     const projectEntity = await jobState.addEntity(
       createProjectEntity(project),
     );

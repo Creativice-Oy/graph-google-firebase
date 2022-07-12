@@ -39,6 +39,7 @@
     "@jupiterone/integration-sdk-testing": "^8.8.0"
   },
   "dependencies": {
+    "firebase-admin": "^10.3.0",
     "gaxios": "^5.0.0",
     "google-auth-library": "^8.0.2",
     "googleapis": "^100.0.0"
