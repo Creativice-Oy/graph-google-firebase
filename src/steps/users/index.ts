@@ -7,7 +7,7 @@ import { IntegrationConfig } from '../../config';
 import { Steps, Entities, Relationships } from '../constants';
 import { IdentityToolkitClient } from './client';
 import { createUserEntity, createProjectUserRelationship } from './converter';
-import { initializeApp } from 'firebase-admin/app';
+import { applicationDefault, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 
 export async function fetchUsers({
@@ -28,11 +28,12 @@ export async function fetchUsers({
   //   },
   // );
 
-  const app = initializeApp();
+  const app = initializeApp({ credential: applicationDefault() });
 
-  const users = getAuth().listUsers();
+  const users = await getAuth().listUsers();
 
-  console.log({ users });
+  console.log({ app });
+  console.log(users);
 }
 
 export const userSteps: IntegrationStep<IntegrationConfig>[] = [

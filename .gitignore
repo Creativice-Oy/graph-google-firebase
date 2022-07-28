@@ -6,3 +6,6 @@ dist/
 .eslintcache
 tsconfig.tsbuildinfo
 *.key
+
+#### TEMP
+fir-*.json
