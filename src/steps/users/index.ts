@@ -30,10 +30,21 @@ export async function fetchUsers({
 
   const app = initializeApp({ credential: applicationDefault() });
 
-  const users = await getAuth().listUsers();
+  let pageToken: string | undefined = undefined;
+  do {
+    const listUsersResult = await getAuth().listUsers(100, pageToken);
 
-  console.log({ app });
-  console.log(users);
+    console.log({ app });
+    console.log(listUsersResult);
+    pageToken = listUsersResult.pageToken;
+
+    listUsersResult.users.map(async (user) => {
+      const userEntity = await jobState.addEntity(createUserEntity(user));
+      // await jobState.addRelationship(
+      //   createProjectUserRelationship(projectEntity, userEntity),
+      // );
+    });
+  } while (pageToken);
 }
 
 export const userSteps: IntegrationStep<IntegrationConfig>[] = [
