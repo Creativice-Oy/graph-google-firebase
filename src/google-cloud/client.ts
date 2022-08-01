@@ -9,8 +9,8 @@ import {
 } from '@jupiterone/integration-sdk-core';
 
 import { createErrorProps } from './utils/createErrorProps';
-import { IntegrationConfig } from '../config';
 import { retry } from '@lifeomic/attempt';
+import { IntegrationConfig } from '../types';
 
 export interface PageableResponse {
   nextPageToken?: string;
@@ -75,6 +75,27 @@ export class Client {
     }
 
     return this.auth;
+  }
+
+  public async verifyAuthentication(): Promise<void> {
+    const auth = await this.getAuthenticatedServiceClient();
+
+    try {
+      const client = google.firebase('v1beta1');
+
+      console.log(
+        await client.projects.list({
+          auth,
+        }),
+      );
+    } catch (err) {
+      throw new IntegrationProviderAuthorizationError({
+        cause: err,
+        endpoint: 'https://www.googleapis.com/oauth2/v4/token',
+        status: err.status,
+        statusText: err.statusText,
+      });
+    }
   }
 
   async iterateApi<T>(

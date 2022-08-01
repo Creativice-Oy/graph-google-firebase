@@ -4,8 +4,8 @@ import {
   IntegrationInstanceConfigFieldMap,
   IntegrationInstanceConfig,
 } from '@jupiterone/integration-sdk-core';
-// import { Client } from './client';
-import { ParsedServiceAccountKeyFile } from './utils/parseServiceAccountKeyFile';
+import { Client } from './google-cloud/client';
+import { parseServiceAccountKeyFile } from './utils/parseServiceAccountKeyFile';
 
 export const instanceConfigFields: IntegrationInstanceConfigFieldMap = {
   serviceAccountKeyFile: {
@@ -14,14 +14,13 @@ export const instanceConfigFields: IntegrationInstanceConfigFieldMap = {
 };
 
 export interface IntegrationConfig extends IntegrationInstanceConfig {
-  serviceAccountKeyFile: ParsedServiceAccountKeyFile;
+  serviceAccountKeyFile: string;
 }
 
 export async function validateInvocation(
   context: IntegrationExecutionContext<IntegrationConfig>,
 ) {
   const { config } = context.instance;
-  console.log('config', config);
 
   if (!config.serviceAccountKeyFile) {
     throw new IntegrationValidationError(
@@ -29,6 +28,11 @@ export async function validateInvocation(
     );
   }
 
-  // const apiClient = new Client(config);
-  // await apiClient.verifyAuthentication();
+  const apiClient = new Client({
+    serviceAccountKeyFile: config.serviceAccountKeyFile,
+    serviceAccountKeyConfig: parseServiceAccountKeyFile(
+      config.serviceAccountKeyFile,
+    ),
+  });
+  await apiClient.verifyAuthentication();
 }

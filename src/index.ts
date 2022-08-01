@@ -12,7 +12,7 @@ export const invocationConfig: IntegrationInvocationConfig<IntegrationConfig> =
   {
     instanceConfigFields,
     getStepStartStates,
-    // validateInvocation,
+    validateInvocation,
     integrationSteps,
   };
 
