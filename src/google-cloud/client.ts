@@ -83,11 +83,9 @@ export class Client {
     try {
       const client = google.firebase('v1beta1');
 
-      console.log(
-        await client.projects.list({
-          auth,
-        }),
-      );
+      await client.projects.list({
+        auth,
+      });
     } catch (err) {
       throw new IntegrationProviderAuthorizationError({
         cause: err,
