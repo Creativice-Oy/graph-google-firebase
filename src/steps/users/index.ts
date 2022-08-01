@@ -5,46 +5,47 @@ import {
 
 import { IntegrationConfig } from '../../config';
 import { Steps, Entities, Relationships } from '../constants';
-import { IdentityToolkitClient } from './client';
-import { createUserEntity, createProjectUserRelationship } from './converter';
-import { applicationDefault, initializeApp } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
+import { CloudAssetClient } from './client';
+import {
+  createProjectUserRelationship,
+  createUserEntity,
+  getUserKey,
+} from './converter';
 
 export async function fetchUsers({
   instance,
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
-  // const client = new IdentityToolkitClient(instance.config);
+  const client = new CloudAssetClient(instance.config);
 
-  // await jobState.iterateEntities(
-  //   { _type: Entities.PROJECT._type },
-  //   async (projectEntity) => {
-  //     await client.iterateUsers(projectEntity.key as string, async (user) => {
-  //       const userEntity = await jobState.addEntity(createUserEntity(user));
-  //       await jobState.addRelationship(
-  //         createProjectUserRelationship(projectEntity, userEntity),
-  //       );
-  //     });
-  //   },
-  // );
+  await jobState.iterateEntities(
+    { _type: Entities.PROJECT._type },
+    async (projectEntity) => {
+      await client.iterateAllIamPolicies(
+        projectEntity.key as string,
+        async (policy) => {
+          const users: string[] =
+            policy.policy?.bindings?.reduce((acc: string[], binding) => {
+              const newUsersInBinding: string[] | undefined =
+                binding.members?.filter((member) => member.includes('user'));
+              return newUsersInBinding ? [...acc, ...newUsersInBinding] : acc;
+            }, []) || [];
 
-  const app = initializeApp({ credential: applicationDefault() });
+          for (const user of users) {
+            if (!jobState.hasKey(getUserKey(user))) {
+              const userEntity = await jobState.addEntity(
+                createUserEntity(user),
+              );
 
-  let pageToken: string | undefined = undefined;
-  do {
-    const listUsersResult = await getAuth().listUsers(100, pageToken);
-
-    console.log({ app });
-    console.log(listUsersResult);
-    pageToken = listUsersResult.pageToken;
-
-    listUsersResult.users.map(async (user) => {
-      const userEntity = await jobState.addEntity(createUserEntity(user));
-      // await jobState.addRelationship(
-      //   createProjectUserRelationship(projectEntity, userEntity),
-      // );
-    });
-  } while (pageToken);
+              await jobState.addRelationship(
+                createProjectUserRelationship(projectEntity, userEntity),
+              );
+            }
+          }
+        },
+      );
+    },
+  );
 }
 
 export const userSteps: IntegrationStep<IntegrationConfig>[] = [
