@@ -53,31 +53,6 @@ export default async function getStepStartStates(
     }, configureOrganizationProjects=${!!config.configureOrganizationProjects})`,
   });
 
-  // let enabledServiceNames: string[];
-  // let serviceAccountProjectEnabledServiceNames: string[];
-  // try {
-  //   const enabledServiceData = await enablement.getEnabledServiceNames(config);
-  //   enabledServiceNames = enabledServiceData.intersectedEnabledServices ?? [];
-  //   serviceAccountProjectEnabledServiceNames =
-  //     enabledServiceData.mainProjectEnabledServices ?? [];
-  // } catch (err) {
-  //   // NOTE: The `IntegrationValidationError` function does not currently support
-  //   // a `cause` to be passed. We should update that.
-  //   logger.warn({ err }, 'Error listing enabled service names');
-
-  //   throw new IntegrationValidationError(
-  //     `Failed to fetch enabled service names. Ability to list services is required to run the Google Cloud integration. (error=${err.message})`,
-  //   );
-  // }
-
-  // logger.info({ enabledServiceNames }, 'Services enabled for project');
-  // logger.info(
-  //   {
-  //     mainProjectEnabledServiceNames: serviceAccountProjectEnabledServiceNames,
-  //   },
-  //   'Services enabled for the main project',
-  // );
-
   const stepStartStates: StepStartStates = {
     [Steps.ACCOUNT]: {
       disabled: false,
@@ -94,5 +69,5 @@ export default async function getStepStartStates(
     { stepStartStates: JSON.stringify(stepStartStates) },
     'Step start states',
   );
-  return stepStartStates;
+  return Promise.resolve(stepStartStates);
 }
