@@ -8,10 +8,6 @@ import {
 import { UserRecord } from 'firebase-admin/auth';
 import { Entities } from '../constants';
 
-export function getAuthUserKey(id: string): string {
-  return `google_firebase_auth_user:${id}`;
-}
-
 export function createAuthUserEntity(authUser: UserRecord): Entity {
   return createIntegrationEntity({
     entityData: {
@@ -19,7 +15,7 @@ export function createAuthUserEntity(authUser: UserRecord): Entity {
       assign: {
         _type: Entities.AUTH_USER._type,
         _class: Entities.AUTH_USER._class,
-        _key: getAuthUserKey(authUser.uid),
+        _key: `google_firebase_auth_user:${authUser.uid}`,
         name: authUser.displayName || authUser.email,
         username: authUser.email,
         active: true,

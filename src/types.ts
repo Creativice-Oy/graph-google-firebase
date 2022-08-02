@@ -9,6 +9,7 @@ export type IntegrationStepContext =
 
 export interface SerializedIntegrationConfig extends IntegrationInstanceConfig {
   serviceAccountKeyFile: string;
+  googleApplicationCredentials: string;
 }
 
 export interface IntegrationConfig extends SerializedIntegrationConfig {

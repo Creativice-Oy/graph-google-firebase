@@ -1,4 +1,3 @@
-import { applicationDefault, initializeApp } from 'firebase-admin/app';
 import { retry } from '@lifeomic/attempt';
 import {
   IntegrationError,
@@ -6,12 +5,12 @@ import {
   IntegrationProviderAuthorizationError,
 } from '@jupiterone/integration-sdk-core';
 import { createErrorProps } from './utils/createErrorProps';
+import { getAuth } from 'firebase-admin/auth';
 
 export class Client {
   private readonly onRetry?: (err: any) => void;
 
   constructor(onRetry?: (err: any) => void) {
-    initializeApp({ credential: applicationDefault() });
     this.onRetry = onRetry;
   }
 
@@ -22,6 +21,10 @@ export class Client {
     return iterateApi(fn, callback, {
       onRetry: this.onRetry,
     });
+  }
+
+  getAuth() {
+    return getAuth();
   }
 }
 

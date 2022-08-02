@@ -10,7 +10,8 @@ import {
 
 import { createErrorProps } from './utils/createErrorProps';
 import { retry } from '@lifeomic/attempt';
-import { IntegrationConfig } from '../types';
+import { applicationDefault, initializeApp } from 'firebase-admin/app';
+import { IntegrationConfig } from '../config';
 
 export interface PageableResponse {
   nextPageToken?: string;
@@ -81,11 +82,15 @@ export class Client {
     const auth = await this.getAuthenticatedServiceClient();
 
     try {
+      // For googleapis
       const client = google.firebase('v1beta1');
 
       await client.projects.list({
         auth,
       });
+
+      // For Firebase Admin SDK
+      initializeApp({ credential: applicationDefault() });
     } catch (err) {
       throw new IntegrationProviderAuthorizationError({
         cause: err,

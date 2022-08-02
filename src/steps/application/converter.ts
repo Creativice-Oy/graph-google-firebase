@@ -8,10 +8,6 @@ import {
 } from '@jupiterone/integration-sdk-core';
 import { Entities } from '../constants';
 
-export function createWebAppKey(id: string | null | undefined): string {
-  return `google_firebase_webapp:${id ? id : ''}`;
-}
-
 export function createWebAppEntity(
   webApp: firebase_v1beta1.Schema$WebApp,
 ): Entity {
@@ -21,7 +17,7 @@ export function createWebAppEntity(
       assign: {
         _type: Entities.WEBAPP._type,
         _class: Entities.WEBAPP._class,
-        _key: createWebAppKey(webApp.name),
+        _key: `google_firebase_webapp:${webApp.name ? webApp.name : ''}`,
         apiKeyId: webApp.apiKeyId,
         appId: webApp.appId,
         appUrls: webApp.appUrls,

@@ -11,10 +11,14 @@ export const instanceConfigFields: IntegrationInstanceConfigFieldMap = {
   serviceAccountKeyFile: {
     type: 'string',
   },
+  googleApplicationCredentials: {
+    type: 'string',
+  },
 };
 
 export interface IntegrationConfig extends IntegrationInstanceConfig {
   serviceAccountKeyFile: string;
+  googleApplicationCredentials: string;
 }
 
 export async function validateInvocation(
@@ -24,7 +28,7 @@ export async function validateInvocation(
 
   if (!config.serviceAccountKeyFile) {
     throw new IntegrationValidationError(
-      'Config requires all of {serviceAccountKeyFile}',
+      'Config requires all of { serviceAccountKeyFile, googleApplicationCredentials }',
     );
   }
 
@@ -33,6 +37,7 @@ export async function validateInvocation(
     serviceAccountKeyConfig: parseServiceAccountKeyFile(
       config.serviceAccountKeyFile,
     ),
+    googleApplicationCredentials: config.googleApplicationCredentials,
   });
   await apiClient.verifyAuthentication();
 }

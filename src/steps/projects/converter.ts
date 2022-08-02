@@ -8,10 +8,6 @@ import {
 } from '@jupiterone/integration-sdk-core';
 import { Entities } from '../constants';
 
-export function getProjectKey(id: string | null | undefined): string {
-  return `google_firebase_project:${id ? id : ''}`;
-}
-
 export function createProjectEntity(
   project: firebase_v1beta1.Schema$FirebaseProject,
 ): Entity {
@@ -21,7 +17,9 @@ export function createProjectEntity(
       assign: {
         _type: Entities.PROJECT._type,
         _class: Entities.PROJECT._class,
-        _key: getProjectKey(project.projectNumber),
+        _key: `google_firebase_project:${
+          project.projectNumber ? project.projectNumber : ''
+        }`,
         id: project.projectNumber ? project.projectNumber : '',
         key: project.projectId ? project.projectId : '',
         displayName: project.displayName ? project.displayName : '',

@@ -38,8 +38,8 @@ export async function fetchWebApps({
 
 export const applicationSteps: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: Steps.APPLICATIONS,
-    name: 'Fetch Applications',
+    id: Steps.WEB_APPS,
+    name: 'Fetch Web Applications',
     entities: [Entities.WEBAPP],
     relationships: [Relationships.PROJECT_HAS_WEBAPP],
     dependsOn: [Steps.PROJECTS],

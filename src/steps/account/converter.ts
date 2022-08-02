@@ -5,14 +5,6 @@ import {
 
 import { Entities } from '../constants';
 
-export function getAccountKey(id: string): string {
-  return `google_firebase_account:${id}`;
-}
-
-export function getAccountName(email: string): string {
-  return email.split('@')[0];
-}
-
 export function createAccountEntity(account: {
   id: string;
   email: string;
@@ -21,12 +13,12 @@ export function createAccountEntity(account: {
     entityData: {
       source: account,
       assign: {
-        _key: getAccountKey(account.id),
+        _key: `google_firebase_account:${account.id}`,
         _type: Entities.ACCOUNT._type,
         _class: Entities.ACCOUNT._class,
         id: account.id.toString(),
         email: account.email,
-        name: getAccountName(account.email),
+        name: account.email.split('@')[0],
       },
     },
   });

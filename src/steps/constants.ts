@@ -10,7 +10,7 @@ export const Steps = {
   ACCOUNT: 'fetch-account',
   PROJECTS: 'fetch-projects',
   USERS: 'fetch-users',
-  APPLICATIONS: 'fetch-applications',
+  WEB_APPS: 'fetch-web-applications',
   AUTH_USERS: 'fetch-auth-users',
 };
 
