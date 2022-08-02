@@ -200,11 +200,12 @@ The following entities are created:
 
 The following relationships are created:
 
-| Source Entity `_type`     | Relationship `_class` | Target Entity `_type`     |
-| ------------------------- | --------------------- | ------------------------- |
-| `google_firebase_account` | **HAS**               | `google_firebase_project` |
-| `google_firebase_project` | **HAS**               | `google_firebase_user`    |
-| `google_firebase_project` | **HAS**               | `google_firebase_webapp`  |
+| Source Entity `_type`     | Relationship `_class` | Target Entity `_type`       |
+| ------------------------- | --------------------- | --------------------------- |
+| `google_firebase_account` | **HAS**               | `google_firebase_project`   |
+| `google_firebase_project` | **HAS**               | `google_firebase_auth_user` |
+| `google_firebase_project` | **HAS**               | `google_firebase_user`      |
+| `google_firebase_project` | **HAS**               | `google_firebase_webapp`    |
 
 <!--
 ********************************************************************************
