@@ -11,10 +11,11 @@ export const Steps = {
   PROJECTS: 'fetch-projects',
   USERS: 'fetch-users',
   APPLICATIONS: 'fetch-applications',
+  AUTH_USERS: 'fetch-auth-users',
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'PROJECT' | 'USER' | 'WEBAPP',
+  'ACCOUNT' | 'PROJECT' | 'USER' | 'WEBAPP' | 'AUTH_USER',
   StepEntityMetadata
 > = {
   ACCOUNT: {
@@ -37,10 +38,18 @@ export const Entities: Record<
     _type: 'google_firebase_webapp',
     _class: ['Application'],
   },
+  AUTH_USER: {
+    resourceName: 'Auth User',
+    _type: 'google_firebase_auth_user',
+    _class: ['User'],
+  },
 };
 
 export const Relationships: Record<
-  'ACCOUNT_HAS_PROJECT' | 'PROJECT_HAS_USER' | 'PROJECT_HAS_WEBAPP',
+  | 'ACCOUNT_HAS_PROJECT'
+  | 'PROJECT_HAS_USER'
+  | 'PROJECT_HAS_WEBAPP'
+  | 'PROJECT_HAS_AUTH_USER',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_PROJECT: {
@@ -60,5 +69,11 @@ export const Relationships: Record<
     sourceType: Entities.PROJECT._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.WEBAPP._type,
+  },
+  PROJECT_HAS_AUTH_USER: {
+    _type: 'google_firebase_project_has_auth_user',
+    sourceType: Entities.PROJECT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.AUTH_USER._type,
   },
 };

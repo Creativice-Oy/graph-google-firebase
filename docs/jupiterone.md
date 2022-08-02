@@ -188,12 +188,13 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources | Entity `_type`            | Entity `_class` |
-| --------- | ------------------------- | --------------- |
-| Account   | `google_firebase_account` | `Account`       |
-| Project   | `google_firebase_project` | `Project`       |
-| User      | `google_firebase_user`    | `User`          |
-| Web App   | `google_firebase_webapp`  | `Application`   |
+| Resources | Entity `_type`              | Entity `_class` |
+| --------- | --------------------------- | --------------- |
+| Account   | `google_firebase_account`   | `Account`       |
+| Auth User | `google_firebase_auth_user` | `User`          |
+| Project   | `google_firebase_project`   | `Project`       |
+| User      | `google_firebase_user`      | `User`          |
+| Web App   | `google_firebase_webapp`    | `Application`   |
 
 ### Relationships
 
