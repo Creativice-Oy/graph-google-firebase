@@ -63,6 +63,9 @@ export default async function getStepStartStates(
     [Steps.USERS]: {
       disabled: false,
     },
+    [Steps.APPLICATIONS]: {
+      disabled: false,
+    },
   };
 
   logger.info(

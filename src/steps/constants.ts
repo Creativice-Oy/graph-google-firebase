@@ -10,54 +10,37 @@ export const Steps = {
   ACCOUNT: 'fetch-account',
   PROJECTS: 'fetch-projects',
   USERS: 'fetch-users',
+  APPLICATIONS: 'fetch-applications',
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'PROJECT' | 'USER',
+  'ACCOUNT' | 'PROJECT' | 'USER' | 'WEBAPP',
   StepEntityMetadata
 > = {
   ACCOUNT: {
     resourceName: 'Account',
     _type: 'google_firebase_account',
     _class: ['Account'],
-    schema: {
-      properties: {
-        id: { type: 'string' },
-        email: { type: 'string' },
-      },
-      required: ['id', 'email'],
-    },
   },
   PROJECT: {
     resourceName: 'Project',
     _type: 'google_firebase_project',
     _class: ['Project'],
-    schema: {
-      properties: {
-        id: { type: 'string' },
-        key: { type: 'string' },
-        displayName: { type: 'string' },
-      },
-      required: ['id', 'key', 'displayName'],
-    },
   },
   USER: {
     resourceName: 'User',
     _type: 'google_firebase_user',
     _class: ['User'],
-    schema: {
-      properties: {
-        username: { type: 'string' },
-        email: { type: 'string' },
-        active: { type: 'boolean' },
-      },
-      required: ['username', 'email', 'active'],
-    },
+  },
+  WEBAPP: {
+    resourceName: 'Web App',
+    _type: 'google_firebase_webapp',
+    _class: ['Application'],
   },
 };
 
 export const Relationships: Record<
-  'ACCOUNT_HAS_PROJECT' | 'PROJECT_HAS_USER',
+  'ACCOUNT_HAS_PROJECT' | 'PROJECT_HAS_USER' | 'PROJECT_HAS_WEBAPP',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_PROJECT: {
@@ -71,5 +54,11 @@ export const Relationships: Record<
     sourceType: Entities.PROJECT._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.USER._type,
+  },
+  PROJECT_HAS_WEBAPP: {
+    _type: 'google_firebase_project_has_webapp',
+    sourceType: Entities.PROJECT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.WEBAPP._type,
   },
 };

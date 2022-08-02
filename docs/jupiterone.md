@@ -193,6 +193,7 @@ The following entities are created:
 | Account   | `google_firebase_account` | `Account`       |
 | Project   | `google_firebase_project` | `Project`       |
 | User      | `google_firebase_user`    | `User`          |
+| Web App   | `google_firebase_webapp`  | `Application`   |
 
 ### Relationships
 
@@ -202,6 +203,7 @@ The following relationships are created:
 | ------------------------- | --------------------- | ------------------------- |
 | `google_firebase_account` | **HAS**               | `google_firebase_project` |
 | `google_firebase_project` | **HAS**               | `google_firebase_user`    |
+| `google_firebase_project` | **HAS**               | `google_firebase_webapp`  |
 
 <!--
 ********************************************************************************
