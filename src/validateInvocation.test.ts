@@ -66,6 +66,8 @@ describe('#validateInvocation', () => {
 
         const executionContext = createMockExecutionContext({
           instanceConfig: {
+            serviceAccountKeyFile:
+              '{"type": "service_account","project_id": "INVALID","private_key_id": "INVALID","private_key": "-----BEGIN PRIVATE KEY-----\nINVALID\n-----END PRIVATE KEY-----\n","client_email": "INVALID@INVALID.iam.gserviceaccount.com","client_id": "INVALID","auth_uri": "https://accounts.google.com/o/oauth2/auth","token_uri": "INVALID","auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url": "INVALID.iam.gserviceaccount.com"}',
             serviceAccountKeyConfig: {
               type: 'service_account',
               project_id: 'INVALID',
@@ -78,6 +80,7 @@ describe('#validateInvocation', () => {
               auth_provider_x509_cert_url: 'INVALID',
               client_x509_cert_url: 'INVALID',
             } as ParsedServiceAccountKeyFile,
+            googleApplicationCredentials: '/INVALID',
           },
         });
 

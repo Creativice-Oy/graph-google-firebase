@@ -63,7 +63,7 @@ export default async function getStepStartStates(
     [Steps.USERS]: {
       disabled: false,
     },
-    [Steps.APPLICATIONS]: {
+    [Steps.WEB_APPS]: {
       disabled: false,
     },
     [Steps.AUTH_USERS]: {
