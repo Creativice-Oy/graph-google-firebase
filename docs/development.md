@@ -5,13 +5,15 @@ is using the
 [Google APIs Node.js Client](https://www.npmjs.com/package/googleapis) for
 interacting with the Google Firebase resources.
 
-## Provider account setup
+## Google Firebase account setup
 
 1. Create a Google account.
 2. Create Firebase project.
-3. Create a
-   [Google Cloud service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts).
+3. Log in to the [Firebase console](https://console.firebase.google.com/u/0/),
+   then click Add project.
 4. Create a
+   [Google Cloud service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts).
+5. Create a
    [Google Cloud service account key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
 
 #### JupiterOne + Google Cloud Organization
@@ -112,3 +114,9 @@ the correct format:
 ```bash
 yarn create-env-file ~/SERVICE_ACCOUNT_FILE_PATH_HERE.json
 ```
+
+## Firebase Admin SDK
+
+The Firebase Admin SDK requires the path to the service account file to be set
+to the `GOOGLE_APPLICATION_CREDENTIALS` environment variable. Provide the path
+to the .env.

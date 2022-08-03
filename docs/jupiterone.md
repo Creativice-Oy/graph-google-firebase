@@ -158,8 +158,8 @@ on the JupiterOne Google Cloud integration list page.
   the integration instance.
 - Select a **Polling Interval** that you feel is sufficient for your monitoring
   needs. You may leave this as `DISABLED` and manually execute the integration.
-- {{additional provider-specific settings}} Enter the **Google Firebase API
-  Key** generated for use by JupiterOne.
+- Enter the flattened **Google Firebase Service Account Key File** and
+  **GOOGLE_APPLICATION_CREDENTIALS** generated for use by JupiterOne.
 
 4. Click **Create Configuration** once all values are provided.
 
