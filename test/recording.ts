@@ -1,29 +1,163 @@
 import {
-  setupRecording,
   Recording,
+  setupRecording,
   SetupRecordingInput,
-  mutations,
 } from '@jupiterone/integration-sdk-testing';
+import { gunzipSync } from 'zlib';
+import { cloudfunctions_v1, iam_v1, privateca_v1beta1 } from 'googleapis';
+import * as url from 'url';
+import * as querystring from 'querystring';
+import { integrationConfig } from './config';
+import { parseServiceAccountKeyFile } from '../src/utils/parseServiceAccountKeyFile';
 
-export { Recording };
+export { Recording } from '@jupiterone/integration-sdk-testing';
 
-export function setupProjectRecording(
-  input: Omit<SetupRecordingInput, 'mutateEntry'>,
-): Recording {
-  return setupRecording({
-    ...input,
-    redactedRequestHeaders: ['Authorization'],
-    redactedResponseHeaders: ['set-cookie'],
-    mutateEntry: mutations.unzipGzippedRecordingEntry,
-    /*mutateEntry: (entry) => {
-      redact(entry);
-    },*/
-  });
+type SetupParameters = Parameters<typeof setupRecording>[0];
+
+enum GoogleHeaders {
+  UPLOADER = 'x-guploader-uploadid',
 }
 
-// a more sophisticated redaction example below:
+function isListFunctionsUrl(url: string) {
+  const parsed = parseServiceAccountKeyFile(
+    integrationConfig.serviceAccountKeyFile,
+  );
+  return `https://cloudfunctions.googleapis.com/v1/projects/${parsed.project_id}/locations/-/functions`;
+}
 
-/*
+function sanitizeGoogleCloudFunctionSourceUploadUrl(sourceUploadUrl: string) {
+  const parsedUrl = url.parse(sourceUploadUrl);
+
+  if (!parsedUrl.query) {
+    // This should not happen. `sourceUploadUrl` should always have a query string.
+    return sourceUploadUrl;
+  }
+
+  const sanitizedQuerystring = querystring.encode({
+    GoogleAccessId:
+      'service-MOCK_PROJECT_ID_INT@gcf-admin-robot.iam.gserviceaccount.com',
+    expires: 9999999999,
+    Signature: '[REDACTED]',
+  });
+
+  return `${parsedUrl.protocol}//${parsedUrl.host}?${sanitizedQuerystring}`;
+}
+
+/**
+ * Google Cloud Function responses include `sourceUploadUrl` which contains a
+ * signed upload URL with a Google Cloud credentials.
+ */
+function sanitizeGoogleCloudFunctionResponse(
+  response: cloudfunctions_v1.Schema$ListFunctionsResponse,
+): cloudfunctions_v1.Schema$ListFunctionsResponse {
+  return {
+    functions:
+      response.functions &&
+      response.functions.map((cloudFunction) => ({
+        ...cloudFunction,
+        sourceUploadUrl:
+          cloudFunction.sourceUploadUrl &&
+          sanitizeGoogleCloudFunctionSourceUploadUrl(
+            cloudFunction.sourceUploadUrl,
+          ),
+      })),
+  };
+}
+
+function isCreateServiceAccountKeyUrl(url: string) {
+  return new RegExp(
+    /https:\/\/iam.googleapis.com\/v1\/projects\/(.*?)\/serviceAccounts\/(.*?)\/keys/,
+  ).test(url);
+}
+
+function isListCertificateAutoritiesUrl(url: string) {
+  return new RegExp(
+    /https:\/\/privateca.googleapis.com\/v1beta1\/projects\/(.*?)\/locations\/-\/certificateAuthorities/,
+  ).test(url);
+}
+
+function isListCertificatesUrl(url: string) {
+  return new RegExp(
+    /https:\/\/privateca.googleapis.com\/v1beta1\/projects\/(.*?)\/locations\/(.*?)\/certificateAuthorities\/(.*?)\/certificates/,
+  ).test(url);
+}
+
+/**
+ * The response from creating a service account key contains the private key
+ * data, which we need to redact.
+ */
+function sanitizeCreateServiceAccountKeyResponse(
+  response: iam_v1.Schema$ServiceAccountKey,
+): iam_v1.Schema$ServiceAccountKey {
+  return {
+    ...response,
+    privateKeyData: '[REDACTED]',
+  };
+}
+
+function sanitizeListCertificateAuthoritiesResponse(
+  response: privateca_v1beta1.Schema$ListCertificateAuthoritiesResponse,
+) {
+  return {
+    certificateAuthorities:
+      response.certificateAuthorities &&
+      response.certificateAuthorities.map((certificateAuthority) => ({
+        ...certificateAuthority,
+        pemCaCertificates: [],
+        caCertificateDescriptions:
+          certificateAuthority.caCertificateDescriptions?.map(
+            (description) => ({
+              ...description,
+              publicKey: {
+                type: description.publicKey?.type,
+                key: '[REDACTED]',
+              },
+            }),
+          ),
+      })),
+  };
+}
+
+function sanitizeListCertificatesResponse(
+  response: privateca_v1beta1.Schema$ListCertificatesResponse,
+) {
+  return {
+    certificates:
+      response.certificates &&
+      response.certificates.map((certificate) => ({
+        ...certificate,
+        config: {
+          ...certificate.config,
+          publicKey: {
+            type: certificate.config?.publicKey?.type,
+            key: '[REDACTED]',
+          },
+        },
+        pemCertificate: '[REDACTED]',
+        certificateDescription: {
+          ...certificate.certificateDescription,
+          publicKey: {
+            type: certificate.certificateDescription?.publicKey?.type,
+            key: '[REDACTED]',
+          },
+        },
+        pemCertificateChain: [],
+      })),
+  };
+}
+
+function gzipStringToUtf8(str: string) {
+  const chunkBuffers: Buffer[] = [];
+  const hexChunks = JSON.parse(str) as string[];
+
+  hexChunks.forEach((chunk) => {
+    const chunkBuffer = Buffer.from(chunk, 'hex');
+    chunkBuffers.push(chunkBuffer);
+  });
+
+  return gunzipSync(Buffer.concat(chunkBuffers)).toString('utf-8');
+}
+
 function getRedactedOAuthResponse() {
   return {
     access_token: '[REDACTED]',
@@ -32,43 +166,98 @@ function getRedactedOAuthResponse() {
   };
 }
 
+export function setupGoogleCloudRecording({
+  name,
+  directory,
+  ...overrides
+}: SetupParameters): Recording {
+  return setupRecording({
+    directory,
+    name,
+    redactedResponseHeaders: [GoogleHeaders.UPLOADER],
+    mutateEntry: (entry) => {
+      redact(entry);
+    },
+    ...overrides,
+  });
+}
+
 function redact(entry): void {
+  const requestUrl = entry.request.url;
+
   if (entry.request.postData) {
     entry.request.postData.text = '[REDACTED]';
   }
 
-  if (!entry.response.content.text) {
+  let responseText = entry.response.content.text;
+  if (!responseText) {
     return;
   }
 
-  //let's unzip the entry so we can modify it
-  mutations.unzipGzippedRecordingEntry(entry);
+  const contentEncoding = entry.response.headers.find(
+    (e) => e.name === 'content-encoding',
+  );
+  const transferEncoding = entry.response.headers.find(
+    (e) => e.name === 'transfer-encoding',
+  );
 
-  //we can just get rid of all response content if this was the token call
-  const requestUrl = entry.request.url;
-  if (requestUrl.match(/oauth\/token/)) {
-    entry.response.content.text = JSON.stringify(getRedactedOAuthResponse());
-    return;
-  }
+  if (contentEncoding && contentEncoding.value === 'gzip') {
+    // Remove encoding/chunking since content is going to be unzipped
+    entry.response.headers = entry.response.headers.filter(
+      (e) => e && e !== contentEncoding && e !== transferEncoding,
+    );
 
-  //if it wasn't a token call, parse the response text, removing any carriage returns or newlines
-  const responseText = entry.response.content.text;
-  const parsedResponseText = JSON.parse(responseText.replace(/\r?\n|\r/g, ''));
+    // Remove recording binary marker
+    delete (entry.response.content as any)._isBinary;
 
-  //now we can modify the returned object as desired
-  //in this example, if the return text is an array of objects that have the 'tenant' property...
-  if (parsedResponseText[0]?.tenant) {
-    for (let i = 0; i < parsedResponseText.length; i++) {
-      parsedResponseText[i].client_secret = '[REDACTED]';
-      parsedResponseText[i].jwt_configuration = '[REDACTED]';
-      parsedResponseText[i].signing_keys = '[REDACTED]';
-      parsedResponseText[i].encryption_key = '[REDACTED]';
-      parsedResponseText[i].addons = '[REDACTED]';
-      parsedResponseText[i].client_metadata = '[REDACTED]';
-      parsedResponseText[i].mobile = '[REDACTED]';
-      parsedResponseText[i].native_social_login = '[REDACTED]';
+    if (requestUrl === 'https://www.googleapis.com/oauth2/v4/token') {
+      entry.response.content.text = JSON.stringify(getRedactedOAuthResponse());
+      return;
     }
-  }
 
-  entry.response.content.text = JSON.stringify(parsedResponseText);
-} */
+    responseText = gzipStringToUtf8(responseText);
+    let parsedResponseText = JSON.parse(responseText.replace(/\r?\n|\r/g, ''));
+
+    if (requestUrl === isListFunctionsUrl(requestUrl)) {
+      parsedResponseText =
+        sanitizeGoogleCloudFunctionResponse(parsedResponseText);
+    }
+
+    if (isCreateServiceAccountKeyUrl(requestUrl)) {
+      parsedResponseText =
+        sanitizeCreateServiceAccountKeyResponse(parsedResponseText);
+    }
+
+    if (isListCertificateAutoritiesUrl(requestUrl)) {
+      parsedResponseText =
+        sanitizeListCertificateAuthoritiesResponse(parsedResponseText);
+    }
+
+    if (isListCertificatesUrl(requestUrl)) {
+      parsedResponseText = sanitizeListCertificatesResponse(parsedResponseText);
+    }
+
+    entry.response.content.text = JSON.stringify(parsedResponseText);
+  }
+}
+
+export async function withRecording(
+  recordingName: string,
+  directoryName: string,
+  cb: () => Promise<void>,
+  options?: SetupRecordingInput['options'],
+) {
+  const recording = setupGoogleCloudRecording({
+    directory: directoryName,
+    name: recordingName,
+    options: {
+      ...(options || {}),
+    },
+  });
+
+  try {
+    await cb();
+  } finally {
+    await recording.stop();
+  }
+}

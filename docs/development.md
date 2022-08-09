@@ -1,28 +1,54 @@
 # Development
 
-Add details here to give a brief overview of how to work with the provider APIs.
-Please reference any SDKs or API docs used to help build the integration here.
+This integration focuses on [Google Firebase](https://firebase.google.com/) and
+is using the
+[Google APIs Node.js Client](https://www.npmjs.com/package/googleapis) for
+interacting with the Google Firebase resources.
 
-## Prerequisites
+## Google Firebase account setup
 
-Supply details about software or tooling (like maybe Docker or Terraform) that
-is needed for development here.
+1. Create a Google account.
+2. Create Firebase project.
+3. Log in to the [Firebase console](https://console.firebase.google.com/u/0/),
+   then click Add project.
 
-Please supply references to documentation that details how to install those
-dependencies here.
+### Creating a Google Firebase service account and service account key
 
-Tools like Node.js and NPM are already covered in the [README](../README.md) so
-don't bother documenting that here.
+1. Go to Project Settings
+2. Go to Service Acounts tab
+3. Click "Create Service Account"
+4. After the service account is created, click "Generate new private key"
+5. In the pop-up, click "Generate key"
+6. Flatten the key and generate .env file by running
 
-## Provider account setup
-
-Please provide information about the steps needed to create an account with a
-provider. Images and references to a provider's documentation is very helpful
-for new developers picking up your work.
+```bash
+  yarn create-env-file ~/SERVICE_ACCOUNT_FILE_PATH_HERE.json
+```
 
 ## Authentication
 
-Supply details here for information on how to authenticate with a provider so
-that developers have an idea of what's needed to hit APIs. It may be useful to
-provide explanations for each value specified in the
-[`IntegrationInstanceConfigFieldMap`](../src/config.ts).
+The Google Cloud service account key file should be a flattened JSON string.
+
+The following is an example of an unflattened service account key file:
+
+```json
+{
+  "type": "service_account",
+  "project_id": "PROJECT_ID",
+  "private_key_id": "...",
+  "private_key": "...",
+  "client_email": "...",
+  "client_id": "...",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "..."
+}
+```
+
+A helper script can be run that will automatically generate the `.env` file in
+the correct format:
+
+```bash
+yarn create-env-file ~/SERVICE_ACCOUNT_FILE_PATH_HERE.json
+```

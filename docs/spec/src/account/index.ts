@@ -8,11 +8,11 @@ export const accountSpec: StepSpec<IntegrationConfig>[] = [
      * PATTERN: Singleton
      */
     id: 'fetch-account',
-    name: 'Fetch Account Details',
+    name: 'Fetch Account',
     entities: [
       {
         resourceName: 'Account',
-        _type: 'acme_account',
+        _type: 'google_firebase_account',
         _class: ['Account'],
       },
     ],

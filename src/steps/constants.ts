@@ -4,77 +4,76 @@ import {
   StepRelationshipMetadata,
 } from '@jupiterone/integration-sdk-core';
 
+export const ACCOUNT_ENTITY_KEY = 'entity:account';
+
 export const Steps = {
   ACCOUNT: 'fetch-account',
+  PROJECTS: 'fetch-projects',
   USERS: 'fetch-users',
-  GROUPS: 'fetch-groups',
-  GROUP_USER_RELATIONSHIPS: 'build-user-group-relationships',
+  WEB_APPS: 'fetch-web-applications',
+  AUTH_USERS: 'fetch-auth-users',
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'GROUP' | 'USER',
+  'ACCOUNT' | 'PROJECT' | 'USER' | 'WEBAPP' | 'AUTH_USER',
   StepEntityMetadata
 > = {
   ACCOUNT: {
     resourceName: 'Account',
-    _type: 'acme_account',
+    _type: 'google_firebase_account',
     _class: ['Account'],
-    schema: {
-      properties: {
-        mfaEnabled: { type: 'boolean' },
-        manager: { type: 'string' },
-      },
-      required: ['mfaEnabled', 'manager'],
-    },
   },
-  GROUP: {
-    resourceName: 'UserGroup',
-    _type: 'acme_group',
-    _class: ['UserGroup'],
-    schema: {
-      properties: {
-        email: { type: 'string' },
-        logoLink: { type: 'string' },
-      },
-      required: ['email', 'logoLink'],
-    },
+  PROJECT: {
+    resourceName: 'Project',
+    _type: 'google_firebase_project',
+    _class: ['Project'],
   },
   USER: {
     resourceName: 'User',
-    _type: 'acme_user',
+    _type: 'google_firebase_user',
     _class: ['User'],
-    schema: {
-      properties: {
-        username: { type: 'string' },
-        email: { type: 'string' },
-        active: { type: 'boolean' },
-        firstName: { type: 'string' },
-      },
-      required: ['username', 'email', 'active', 'firstName'],
-    },
+  },
+  WEBAPP: {
+    resourceName: 'Web App',
+    _type: 'google_firebase_webapp',
+    _class: ['Application'],
+  },
+  AUTH_USER: {
+    resourceName: 'Auth User',
+    _type: 'google_firebase_auth_user',
+    _class: ['User'],
   },
 };
 
 export const Relationships: Record<
-  'ACCOUNT_HAS_USER' | 'ACCOUNT_HAS_GROUP' | 'GROUP_HAS_USER',
+  | 'ACCOUNT_HAS_PROJECT'
+  | 'PROJECT_HAS_USER'
+  | 'PROJECT_HAS_WEBAPP'
+  | 'PROJECT_HAS_AUTH_USER',
   StepRelationshipMetadata
 > = {
-  ACCOUNT_HAS_USER: {
-    _type: 'acme_account_has_user',
+  ACCOUNT_HAS_PROJECT: {
+    _type: 'google_firebase_account_has_project',
     sourceType: Entities.ACCOUNT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.PROJECT._type,
+  },
+  PROJECT_HAS_USER: {
+    _type: 'google_firebase_project_has_user',
+    sourceType: Entities.PROJECT._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.USER._type,
   },
-  ACCOUNT_HAS_GROUP: {
-    _type: 'acme_account_has_group',
-    sourceType: Entities.ACCOUNT._type,
+  PROJECT_HAS_WEBAPP: {
+    _type: 'google_firebase_project_has_webapp',
+    sourceType: Entities.PROJECT._type,
     _class: RelationshipClass.HAS,
-    targetType: Entities.GROUP._type,
+    targetType: Entities.WEBAPP._type,
   },
-  GROUP_HAS_USER: {
-    _type: 'acme_group_has_user',
-    sourceType: Entities.GROUP._type,
+  PROJECT_HAS_AUTH_USER: {
+    _type: 'google_firebase_project_has_auth_user',
+    sourceType: Entities.PROJECT._type,
     _class: RelationshipClass.HAS,
-    targetType: Entities.USER._type,
+    targetType: Entities.AUTH_USER._type,
   },
 };

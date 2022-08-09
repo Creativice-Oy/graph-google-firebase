@@ -10,13 +10,13 @@ afterEach(async () => {
   await recording.stop();
 });
 
-test('fetch-account', async () => {
+test('fetch-projects', async () => {
   recording = setupGoogleCloudRecording({
     directory: __dirname,
-    name: 'fetch-account',
+    name: 'fetch-projects',
   });
 
-  const stepConfig = buildStepTestConfigForStep(Steps.ACCOUNT);
+  const stepConfig = buildStepTestConfigForStep(Steps.PROJECTS);
   const stepResult = await executeStepWithDependencies(stepConfig);
   expect(stepResult).toMatchStepMetadata(stepConfig);
 });
